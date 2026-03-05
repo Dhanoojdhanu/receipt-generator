@@ -65,19 +65,12 @@ background:#0056b3;
 <h2>Receipt Generator</h2>
 
 <input id="name" placeholder="Name">
-
 <input id="reg" placeholder="Registration Number">
-
 <input id="utr" placeholder="UTR Number">
-
 <input id="payment" placeholder="Payment Amount">
-
 <input id="plan" placeholder="Diet Plan">
-
 <input id="start" placeholder="Start Date">
-
 <input id="end" placeholder="End Date">
-
 <input id="days" placeholder="Total Plan Days">
 
 <button onclick="generate()">Generate Receipt</button>
@@ -88,48 +81,32 @@ background:#0056b3;
 
 async function generate(){
 
-const fileID = "YOUR_FILE_ID";
-
-const url = "https://docs.google.com/document/d/1XgeyyM5MsOaL7ANnDS30mCzaXEw7r3DN/edit?usp=sharing&ouid=106435015143578411155&rtpof=true&sd=true;
+const url = "https://drive.google.com/uc?export=download&id=1XgeyyM5MsOaL7ANnDS30mCzaXEw7r3DN";
 
 try{
 
 const response = await fetch(url);
-
 const content = await response.arrayBuffer();
 
 const zip = new PizZip(content);
-
 const doc = new window.docxtemplater(zip);
 
 doc.setData({
-
 Name: document.getElementById("name").value,
-
 R: document.getElementById("reg").value,
-
 U: document.getElementById("utr").value,
-
 P: document.getElementById("payment").value,
-
 DP: document.getElementById("plan").value,
-
 SD: document.getElementById("start").value,
-
 ED: document.getElementById("end").value,
-
 TP: document.getElementById("days").value
-
 });
 
 doc.render();
 
 const blob = doc.getZip().generate({
-
 type:"blob",
-
 mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-
 });
 
 saveAs(blob,"Receipt.docx");
@@ -138,8 +115,7 @@ saveAs(blob,"Receipt.docx");
 
 catch(error){
 
-alert("Error loading template. Check Google Drive sharing settings.");
-
+alert("Template loading error. Make sure Google Drive file is public.");
 console.error(error);
 
 }
