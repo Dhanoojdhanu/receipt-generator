@@ -1,28 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-
 <meta charset="UTF-8">
-
 <title>Receipt Generator</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.5/pizzip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.0/docxtemplater.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.0/docxtemplater.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
 <style>
-
 body{
-font-family:Arial;
-background:#f2f2f2;
+font-family: Arial;
+background:#f4f4f4;
 padding:40px;
 }
 
-.box{
+.container{
 background:white;
 padding:25px;
 width:420px;
+margin:auto;
 border-radius:8px;
 box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
@@ -30,48 +28,39 @@ box-shadow:0 0 10px rgba(0,0,0,0.1);
 input{
 width:100%;
 padding:8px;
-margin:6px 0 12px 0;
+margin:6px 0;
 }
 
 button{
-background:#2c7be5;
-color:white;
-padding:10px;
-border:none;
 width:100%;
+padding:10px;
+margin-top:10px;
+background:#007bff;
+color:white;
+border:none;
+border-radius:5px;
 cursor:pointer;
 }
-
-button:hover{
-background:#1a5fd0;
-}
-
 </style>
 
 </head>
 
 <body>
 
-<div class="box">
+<div class="container">
 
 <h2>Receipt Generator</h2>
 
-<input id="reg" placeholder="Registration Number">
-
-<input id="utr" placeholder="UTR No">
-
 <input id="name" placeholder="Name">
+<input id="reg" placeholder="Registration Number">
+<input id="utr" placeholder="UTR Number">
+<input id="payment" placeholder="Payment Amount">
+<input id="plan" placeholder="Diet Plan">
+<input id="start" placeholder="Start Date">
+<input id="end" placeholder="End Date">
+<input id="days" placeholder="Total Plan Days">
 
-<input id="paid" placeholder="Paid Amount">
-
-<input id="dp" placeholder="Plan Details">
-
-<label>Start Date</label>
-<input type="date" id="sd">
-
-<input id="tp" type="number" placeholder="Period (Days)">
-
-<button onclick="generate()">Download Receipt</button>
+<button onclick="generate()">Generate Receipt</button>
 
 </div>
 
@@ -79,71 +68,35 @@ background:#1a5fd0;
 
 async function generate(){
 
-try{
+const response = await fetch("template.docx");
+const content = await response.arrayBuffer();
 
-let reg=document.getElementById("reg").value
-let utr=document.getElementById("utr").value
-let name=document.getElementById("name").value
-let paid=document.getElementById("paid").value
-let dp=document.getElementById("dp").value
-let sd=document.getElementById("sd").value
-let tp=parseInt(document.getElementById("tp").value)
-
-if(!reg || !utr || !name || !paid || !dp || !sd || !tp){
-alert("Please fill all fields")
-return
-}
-
-let start=new Date(sd)
-let end=new Date(start)
-
-end.setDate(start.getDate()+tp)
-
-let ed=end.toISOString().split('T')[0]
-
-let response=await fetch("template.docx")
-
-let content=await response.arrayBuffer()
-
-let zip=new PizZip(content)
-
-let doc = new window.docxtemplater().loadZip(zip)
+const zip = new PizZip(content);
+const doc = new window.docxtemplater(zip);
 
 doc.setData({
+Name: document.getElementById("name").value,
+R: document.getElementById("reg").value,
+U: document.getElementById("utr").value,
+P: document.getElementById("payment").value,
+DP: document.getElementById("plan").value,
+SD: document.getElementById("start").value,
+ED: document.getElementById("end").value,
+TP: document.getElementById("days").value
+});
 
-R:reg,
-U:utr,
-Name:name,
-P:paid,
-DP:dp,
-SD:sd,
-ED:ed,
-TP:tp
+doc.render();
 
-})
+const blob = doc.getZip().generate({
+type:"blob",
+mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+});
 
-doc.render()
-
-let out=doc.getZip().generate({
-type:"blob"
-})
-
-saveAs(out,name + ".docx")
-
-}
-
-catch(error){
-
-alert("Error generating receipt. Check template placeholders.")
-
-console.log(error)
-
-}
+saveAs(blob,"Receipt.docx");
 
 }
 
 </script>
 
 </body>
-
 </html>
