@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+
 <meta charset="UTF-8">
 <title>Receipt Generator</title>
 
@@ -10,37 +10,50 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
 <style>
+
 body{
 font-family: Arial;
-background:#f4f4f4;
+background:#f4f6f8;
 padding:40px;
 }
 
 .container{
-background:white;
-padding:25px;
 width:420px;
 margin:auto;
-border-radius:8px;
+background:white;
+padding:30px;
+border-radius:10px;
 box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h2{
+text-align:center;
+margin-bottom:20px;
 }
 
 input{
 width:100%;
-padding:8px;
-margin:6px 0;
+padding:10px;
+margin-bottom:10px;
+border:1px solid #ccc;
+border-radius:5px;
 }
 
 button{
 width:100%;
-padding:10px;
-margin-top:10px;
+padding:12px;
 background:#007bff;
 color:white;
 border:none;
 border-radius:5px;
 cursor:pointer;
+font-size:16px;
 }
+
+button:hover{
+background:#0056b3;
+}
+
 </style>
 
 </head>
@@ -52,12 +65,19 @@ cursor:pointer;
 <h2>Receipt Generator</h2>
 
 <input id="name" placeholder="Name">
+
 <input id="reg" placeholder="Registration Number">
+
 <input id="utr" placeholder="UTR Number">
+
 <input id="payment" placeholder="Payment Amount">
+
 <input id="plan" placeholder="Diet Plan">
+
 <input id="start" placeholder="Start Date">
+
 <input id="end" placeholder="End Date">
+
 <input id="days" placeholder="Total Plan Days">
 
 <button onclick="generate()">Generate Receipt</button>
@@ -68,31 +88,61 @@ cursor:pointer;
 
 async function generate(){
 
-const response = await fetch("template.docx");
+const fileID = "YOUR_FILE_ID";
+
+const url = "https://docs.google.com/document/d/1XgeyyM5MsOaL7ANnDS30mCzaXEw7r3DN/edit?usp=sharing&ouid=106435015143578411155&rtpof=true&sd=true;
+
+try{
+
+const response = await fetch(url);
+
 const content = await response.arrayBuffer();
 
 const zip = new PizZip(content);
+
 const doc = new window.docxtemplater(zip);
 
 doc.setData({
+
 Name: document.getElementById("name").value,
+
 R: document.getElementById("reg").value,
+
 U: document.getElementById("utr").value,
+
 P: document.getElementById("payment").value,
+
 DP: document.getElementById("plan").value,
+
 SD: document.getElementById("start").value,
+
 ED: document.getElementById("end").value,
+
 TP: document.getElementById("days").value
+
 });
 
 doc.render();
 
 const blob = doc.getZip().generate({
+
 type:"blob",
+
 mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
 });
 
 saveAs(blob,"Receipt.docx");
+
+}
+
+catch(error){
+
+alert("Error loading template. Check Google Drive sharing settings.");
+
+console.error(error);
+
+}
 
 }
 
