@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Receipt Generator</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.5/pizzip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.0/docxtemplater.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+padding:40px;
+}
+
+.box{
+background:white;
+padding:25px;
+width:420px;
+border-radius:8px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+input{
+width:100%;
+padding:8px;
+margin:6px 0 12px 0;
+}
+
+button{
+background:#2c7be5;
+color:white;
+padding:10px;
+border:none;
+width:100%;
+cursor:pointer;
+}
+
+button:hover{
+background:#1a5fd0;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Receipt Generator</h2>
+
+<input id="reg" placeholder="Registration Number">
+
+<input id="utr" placeholder="UTR No">
+
+<input id="name" placeholder="Name">
+
+<input id="paid" placeholder="Paid Amount">
+
+<input id="dp" placeholder="Plan Details">
+
+<label>Start Date</label>
+<input type="date" id="sd">
+
+<input id="tp" type="number" placeholder="Period (Days)">
+
+<button onclick="generate()">Download Receipt</button>
+
+</div>
+
+<script>
+
+async function generate(){
+
+try{
+
+let reg=document.getElementById("reg").value
+let utr=document.getElementById("utr").value
+let name=document.getElementById("name").value
+let paid=document.getElementById("paid").value
+let dp=document.getElementById("dp").value
+let sd=document.getElementById("sd").value
+let tp=parseInt(document.getElementById("tp").value)
+
+if(!reg || !utr || !name || !paid || !dp || !sd || !tp){
+alert("Please fill all fields")
+return
+}
+
+let start=new Date(sd)
+let end=new Date(start)
+
+end.setDate(start.getDate()+tp)
+
+let ed=end.toISOString().split('T')[0]
+
+let response=await fetch("template.docx")
+
+let content=await response.arrayBuffer()
+
+let zip=new PizZip(content)
+
+let doc = new window.docxtemplater().loadZip(zip)
+
+doc.setData({
+
+R:reg,
+U:utr,
+Name:name,
+P:paid,
+DP:dp,
+SD:sd,
+ED:ed,
+TP:tp
+
+})
+
+doc.render()
+
+let out=doc.getZip().generate({
+type:"blob"
+})
+
+saveAs(out,name + ".docx")
+
+}
+
+catch(error){
+
+alert("Error generating receipt. Check template placeholders.")
+
+console.log(error)
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>
