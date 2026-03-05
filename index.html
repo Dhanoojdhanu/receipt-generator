@@ -81,11 +81,16 @@ background:#0056b3;
 
 async function generate(){
 
-const url = "https://drive.google.com/uc?export=download&id=1XgeyyM5MsOaL7ANnDS30mCzaXEw7r3DN";
+const url = "https://docs.google.com/document/d/1XgeyyM5MsOaL7ANnDS30mCzaXEw7r3DN/export?format=docx";
 
 try{
 
 const response = await fetch(url);
+
+if(!response.ok){
+throw new Error("Template download failed");
+}
+
 const content = await response.arrayBuffer();
 
 const zip = new PizZip(content);
@@ -115,7 +120,7 @@ saveAs(blob,"Receipt.docx");
 
 catch(error){
 
-alert("Template loading error. Make sure Google Drive file is public.");
+alert("Template loading error. Make sure Google Doc is shared to Anyone with link.");
 console.error(error);
 
 }
